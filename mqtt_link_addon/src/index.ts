@@ -13,8 +13,8 @@
  *   * Discovery prefix unification
  */
 
-import aedesFactory from 'aedes';
-import type { Aedes, Client as AedesClient, PublishPacket } from 'aedes';
+import Aedes from 'aedes';
+import type { Client as AedesClient, PublishPacket } from 'aedes';
 import { createServer } from 'net';
 import mqtt from 'mqtt';
 import type { IClientOptions, MqttClient } from 'mqtt';
@@ -137,7 +137,7 @@ function seenRecently(key: string): boolean {
 // Local Broker (Aedes)
 // ============================================================================
 
-const aedes: Aedes = aedesFactory({
+const aedes = new Aedes({
   id: 'ha-mqtt-unifier',
   concurrency: 100,
 });
@@ -152,8 +152,8 @@ aedes.on('clientDisconnect', (client: AedesClient) => {
   log('info', `Local client disconnected: ${client.id}`);
 });
 
-aedes.on('subscribe', (subscriptions, client: AedesClient) => {
-  log('debug', `Client ${client.id} subscribed:`, subscriptions.map(s => s.topic).join(', '));
+aedes.on('subscribe', (subscriptions: any, client: AedesClient) => {
+  log('debug', `Client ${client.id} subscribed:`, subscriptions.map((s: any) => s.topic).join(', '));
 });
 
 aedes.on('publish', async (packet: PublishPacket, client: AedesClient | null) => {
@@ -187,7 +187,7 @@ aedes.on('publish', async (packet: PublishPacket, client: AedesClient | null) =>
       qos: qos as any,
       retain: retain,
       properties: markOriginV5({}, 'local'),
-    }, (err) => {
+    }, (err: any) => {
       if (err) {
         log('error', `Error publishing to upstream ${up.id}:`, err.message);
       }
@@ -291,7 +291,7 @@ function connectUpstream(upConfig: UpstreamConfig): UpstreamClient {
         qos: qos as any,
         retain: retain,
         properties: markOriginV5({}, upConfig.id),
-      }, (err) => {
+      }, (err: any) => {
         if (err) {
           log('error', `Error forwarding from ${upConfig.id} to ${otherUp.id}:`, err.message);
         }
