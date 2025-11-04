@@ -1,4 +1,4 @@
-"""Config flow dla MQTT Link."""
+"""Config flow for MQTT Link."""
 import logging
 from typing import Any
 
@@ -22,15 +22,15 @@ class MQTTLinkConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Handle the initial step - konfiguracja brokera A (lokalny)."""
+        """Handle the initial step - broker A configuration (local)."""
         errors = {}
 
         if user_input is not None:
-            # Zapisz dane brokera A i przejdź do kroku 2
+            # Save broker A data and proceed to step 2
             self.broker_a_data = user_input
             return await self.async_step_broker_b()
 
-        # Formularz dla brokera A
+        # Form for broker A
         data_schema = vol.Schema(
             {
                 vol.Optional("broker_a_host", default="localhost"): str,
@@ -53,20 +53,20 @@ class MQTTLinkConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_broker_b(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Handle broker B configuration (zdalny Home Assistant)."""
+        """Handle broker B configuration (remote Home Assistant)."""
         errors = {}
 
         if user_input is not None:
-            # Połącz dane z obu kroków
+            # Combine data from both steps
             config_data = {**self.broker_a_data, **user_input}
             
-            # Utwórz wpis konfiguracji
+            # Create configuration entry
             return self.async_create_entry(
                 title=f"MQTT Link: {config_data['broker_b_host']}",
                 data=config_data,
             )
 
-        # Formularz dla brokera B
+        # Form for broker B
         data_schema = vol.Schema(
             {
                 vol.Required("broker_b_host"): str,

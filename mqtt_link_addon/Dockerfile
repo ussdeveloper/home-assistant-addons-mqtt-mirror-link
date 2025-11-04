@@ -1,16 +1,16 @@
 ARG BUILD_FROM
 FROM $BUILD_FROM
 
-# Ustaw katalog roboczy
+# Set working directory
 WORKDIR /app
 
-# Zainstaluj wymagane pakiety Python
+# Install required Python packages
 RUN pip3 install --no-cache-dir paho-mqtt==1.6.1
 
-# Skopiuj pliki aplikacji
+# Copy application files
 COPY mqtt_bridge.py /app/
 COPY run.sh /
 RUN chmod a+x /run.sh
 
-# Uruchom
+# Run
 CMD [ "/run.sh" ]

@@ -1,8 +1,8 @@
 {
   "name": "MQTT Mirror Link",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "slug": "mqtt_mirror_link",
-  "description": "Synchronizuj komunikaty MQTT między dwoma brokerami - linkuj dwie instancje Home Assistant!",
+  "description": "Synchronize MQTT messages between two brokers - link two Home Assistant instances!",
   "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"],
   "url": "https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link",
   "startup": "services",

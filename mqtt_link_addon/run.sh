@@ -5,7 +5,7 @@
 
 bashio::log.info "Starting MQTT Mirror Link..."
 
-# Pobierz konfigurację
+# Get configuration
 BROKER_A_HOST=$(bashio::config 'broker_a.host')
 BROKER_A_PORT=$(bashio::config 'broker_a.port')
 BROKER_A_USERNAME=$(bashio::config 'broker_a.username')
@@ -25,7 +25,7 @@ bashio::log.info "Broker A: ${BROKER_A_HOST}:${BROKER_A_PORT}"
 bashio::log.info "Broker B: ${BROKER_B_HOST}:${BROKER_B_PORT}"
 bashio::log.info "Bidirectional: ${BIDIRECTIONAL}"
 
-# Uruchom aplikację Python
+# Start Python application
 exec python3 /app/mqtt_bridge.py \
     --broker-a-host "${BROKER_A_HOST}" \
     --broker-a-port "${BROKER_A_PORT}" \
