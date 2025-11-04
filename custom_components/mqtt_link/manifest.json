@@ -1,0 +1,12 @@
+{
+  "domain": "mqtt_link",
+  "name": "MQTT Mirror Link",
+  "codeowners": ["@ussdeveloper"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link",
+  "issue_tracker": "https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link/issues",
+  "iot_class": "local_push",
+  "requirements": ["paho-mqtt==1.6.1"],
+  "version": "1.0.0"
+}

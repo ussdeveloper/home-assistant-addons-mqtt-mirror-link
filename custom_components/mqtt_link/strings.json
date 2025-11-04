@@ -1,0 +1,53 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Konfiguracja MQTT Link - Broker A (lokalny)",
+        "description": "Skonfiguruj pierwszy broker MQTT (lokalny Home Assistant)",
+        "data": {
+          "broker_a_host": "Host brokera A",
+          "broker_a_port": "Port brokera A",
+          "broker_a_username": "Użytkownik brokera A (opcjonalnie)",
+          "broker_a_password": "Hasło brokera A (opcjonalnie)",
+          "broker_a_topic": "Temat MQTT do subskrypcji (# = wszystkie)"
+        }
+      },
+      "broker_b": {
+        "title": "Konfiguracja MQTT Link - Broker B (zdalny)",
+        "description": "Skonfiguruj drugi broker MQTT (zdalny Home Assistant)",
+        "data": {
+          "broker_b_host": "Host brokera B",
+          "broker_b_port": "Port brokera B",
+          "broker_b_username": "Użytkownik brokera B (opcjonalnie)",
+          "broker_b_password": "Hasło brokera B (opcjonalnie)",
+          "broker_b_topic": "Temat MQTT do subskrypcji (# = wszystkie)",
+          "bidirectional": "Synchronizacja dwukierunkowa"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "To urządzenie jest już skonfigurowane"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opcje MQTT Link",
+        "description": "Zaktualizuj ustawienia MQTT Link",
+        "data": {
+          "broker_a_host": "Host brokera A",
+          "broker_a_port": "Port brokera A",
+          "broker_a_username": "Użytkownik brokera A",
+          "broker_a_password": "Hasło brokera A",
+          "broker_a_topic": "Temat MQTT brokera A",
+          "broker_b_host": "Host brokera B",
+          "broker_b_port": "Port brokera B",
+          "broker_b_username": "Użytkownik brokera B",
+          "broker_b_password": "Hasło brokera B",
+          "broker_b_topic": "Temat MQTT brokera B",
+          "bidirectional": "Synchronizacja dwukierunkowa"
+        }
+      }
+    }
+  }
+}
