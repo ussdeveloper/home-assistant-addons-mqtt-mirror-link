@@ -1,5 +1,12 @@
 ## What's changed
 
+## Version 2.0.1 (2024)
+### 🐛 Bug Fixes
+- ✅ Fixed TypeScript compilation errors
+- ✅ Added package-lock.json for reproducible builds
+- ✅ Fixed Aedes import and instantiation
+- ✅ Fixed Alpine package dependencies (nodejs-current)
+
 ## Version 2.0.0 (2024) - **MAJOR REWRITE** 🎉
 
 ### 🏗️ Complete Architecture Redesign
