@@ -3,62 +3,62 @@
 [![GitHub Release](https://img.shields.io/github/release/ussdeveloper/home-assistant-addons-mqtt-mirror-link.svg)](https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link/releases)
 [![License](https://img.shields.io/github/license/ussdeveloper/home-assistant-addons-mqtt-mirror-link.svg)](LICENSE)
 
-**Wirtualny, jednolity broker MQTT dla Home Assistant - łącz wiele upstream brokerów w jedno!**
+**Virtual unified MQTT broker for Home Assistant - connect multiple upstream brokers into one!**
 
-## 🎯 Co to robi?
+## 🎯 What does it do?
 
-MQTT Mirror Link to Home Assistant Add-on, który tworzy **wirtualny, jednolity broker MQTT** (lokalny endpoint dla Home Assistant). Addon wewnętrznie łączy się z wieloma upstream brokerami MQTT, tworząc jednolitą przestrzeń komunikatów.
+MQTT Mirror Link is a Home Assistant Add-on that creates a **virtual unified MQTT broker** (local endpoint for Home Assistant). The addon internally connects to multiple upstream MQTT brokers, creating a unified message space.
 
 ### Architektura v2.0
 
 ```
 Home Assistant
       ↕
-Local Broker (localhost:1883)  ← Ten addon
+Local Broker (localhost:1883)  ← This addon
       ↕              ↕
 Upstream A     Upstream B
 (broker 1)     (broker 2)
 ```
 
-**Jak to działa:**
-- Home Assistant łączy się tylko do lokalnego brokera (ten addon)
-- Addon łączy się do wielu upstream brokerów (dowolna liczba)
-- Wszystkie komunikaty są automatycznie synchronizowane
-- Wbudowana detekcja pętli (LRU cache + MQTT v5 origin tagging)
+**How it works:**
+- Home Assistant connects only to the local broker (this addon)
+- Addon connects to multiple upstream brokers (unlimited number)
+- All messages are automatically synchronized
+- Built-in loop detection (LRU cache + MQTT v5 origin tagging)
 
-## ✨ Funkcje
+## ✨ Features
 
-- ✅ **Wirtualny jednolity broker** - jeden endpoint dla Home Assistant
-- ✅ **Wiele upstream brokerów** - nieograniczona liczba połączeń
-- ✅ **Automatyczna detekcja pętli** - sha1 hashing + LRU cache (50k wiadomości, 30s TTL)
-- ✅ **MQTT v5 origin tagging** - user properties do śledzenia źródła
-- ✅ **Fan-in/fan-out routing** - lokalny→wszystkie upstreamy, upstream A→lokalny+upstream B
-- ✅ **Filtrowanie $SYS/#** - wyklucza systemowe topiki brokerów
-- ✅ **Uwierzytelnianie** - pełne wsparcie dla username/password
-- ✅ **Automatyczne reconnect** - po utracie połączenia
-- ✅ **Node.js 20 + TypeScript** - nowoczesny stack technologiczny
+- ✅ **Virtual unified broker** - single endpoint for Home Assistant
+- ✅ **Multiple upstream brokers** - unlimited number of connections
+- ✅ **Automatic loop detection** - sha1 hashing + LRU cache (50k messages, 30s TTL)
+- ✅ **MQTT v5 origin tagging** - user properties for source tracking
+- ✅ **Fan-in/fan-out routing** - local→all upstreams, upstream A→local+upstream B
+- ✅ **$SYS/# filtering** - excludes broker system topics
+- ✅ **Authentication** - full username/password support
+- ✅ **Automatic reconnect** - after connection loss
+- ✅ **Node.js 20 + TypeScript** - modern technology stack
 
-## 📦 Instalacja
+## 📦 Installation
 
-1. W Home Assistant przejdź do **Settings** → **Add-ons**
-2. Kliknij **Add-on Store** (prawy dolny róg)
-3. Menu **⋮** (prawy górny róg) → **Repositories**
-4. Dodaj URL: `https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link`
-5. Znajdź **MQTT Mirror Link** i kliknij **INSTALL**
-6. Przejdź do zakładki **Configuration**
-7. Skonfiguruj (zobacz przykłady poniżej)
-8. Uruchom addon (zakładka **Info** → **START**)
+1. In Home Assistant go to **Settings** → **Add-ons**
+2. Click **Add-on Store** (bottom right corner)
+3. Menu **⋮** (top right corner) → **Repositories**
+4. Add URL: `https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link`
+5. Find **MQTT Mirror Link** and click **INSTALL**
+6. Go to **Configuration** tab
+7. Configure (see examples below)
+8. Start the addon (**Info** tab → **START**)
 
-## ⚙️ Konfiguracja
+## ⚙️ Configuration
 
-### Parametry lokalne (Local Broker)
+### Local Broker Parameters
 
-- **listen.host** - IP gdzie słucha lokalny broker (domyślnie: `0.0.0.0`)
-- **listen.port** - Port lokalnego brokera (domyślnie: `1883`)
+- **listen.host** - IP address for local broker to listen on (default: `0.0.0.0`)
+- **listen.port** - Local broker port (default: `1883`)
 
-### Parametry upstream brokerów
+### Upstream Broker Parameters
 
-Tablica `upstreams` zawiera listę brokerów do połączenia:
+The `upstreams` array contains a list of brokers to connect to:
 
 ```yaml
 upstreams:
@@ -77,23 +77,23 @@ upstreams:
     client_id: "ha-mqtt-unifier-upstream-2"
 ```
 
-**Każdy upstream broker:**
-- `host` - adres IP lub hostname
-- `port` - port MQTT (domyślnie: 1883)
-- `username` - nazwa użytkownika (opcjonalne)
-- `password` - hasło (opcjonalne)
-- `topics` - lista tematów do subskrypcji (domyślnie: ["#"])
-- `client_id` - unikalny ID klienta MQTT
+**Each upstream broker:**
+- `host` - IP address or hostname
+- `port` - MQTT port (default: 1883)
+- `username` - username (optional)
+- `password` - password (optional)
+- `topics` - list of topics to subscribe to (default: ["#"])
+- `client_id` - unique MQTT client ID
 
-### Dodatkowe parametry
+### Additional Parameters
 
-- **discovery_prefix** - prefiks Home Assistant discovery (domyślnie: `homeassistant`)
-- **retain_cache_ttl_sec** - TTL cache dla wiadomości z retain (domyślnie: 30)
-- **max_lru** - maksymalna wielkość LRU cache (domyślnie: 50000)
+- **discovery_prefix** - Home Assistant discovery prefix (default: `homeassistant`)
+- **retain_cache_ttl_sec** - Cache TTL for retained messages (default: 30)
+- **max_lru** - Maximum LRU cache size (default: 50000)
 
-## 📋 Przykłady konfiguracji
+## 📋 Configuration Examples
 
-### Przykład 1: Dwa brokery MQTT - pełna synchronizacja
+### Example 1: Two MQTT Brokers - Full Synchronization
 
 ```yaml
 upstreams:
@@ -112,7 +112,7 @@ upstreams:
     client_id: "ha-unifier-broker2"
 ```
 
-### Przykład 2: Tylko topiki Home Assistant i Zigbee2MQTT
+### Example 2: Home Assistant and Zigbee2MQTT Topics Only
 
 ```yaml
 upstreams:
@@ -124,7 +124,7 @@ upstreams:
     client_id: "ha-unifier-filtered"
 ```
 
-### Przykład 3: Trzy brokery - różne porty
+### Example 3: Three Brokers - Different Ports
 
 ```yaml
 upstreams:
@@ -143,58 +143,58 @@ upstreams:
     topics: ["sensors/#"]
 ```
 
-### Konfiguracja Home Assistant
+### Home Assistant Configuration
 
-Po uruchomieniu addonu, skonfiguruj Home Assistant aby łączył się do lokalnego brokera:
+After starting the addon, configure Home Assistant to connect to the local broker:
 
 **configuration.yaml:**
 ```yaml
 mqtt:
   broker: localhost
   port: 1883
-  # username/password jeśli wymagane przez upstream brokery
+  # username/password if required by upstream brokers
 ```
 
-## 🔧 Rozwiązywanie problemów
+## 🔧 Troubleshooting
 
-### Sprawdź logi addonu
+### Check Addon Logs
 
-W Home Assistant:
-1. Przejdź do **Settings** → **Add-ons** → **MQTT Mirror Link**
-2. Zakładka **Log** - sprawdź błędy połączeń z upstream brokerami
+In Home Assistant:
+1. Go to **Settings** → **Add-ons** → **MQTT Mirror Link**
+2. **Log** tab - check for connection errors with upstream brokers
 
-### Typowe problemy
+### Common Issues
 
-**Problem**: Addon nie startuje
-- Sprawdź logi addonu
-- Upewnij się, że format konfiguracji YAML jest poprawny
-- Sprawdź czy port 1883 nie jest już zajęty
+**Issue**: Addon won't start
+- Check addon logs
+- Ensure YAML configuration format is correct
+- Check if port 1883 is already in use
 
-**Problem**: Home Assistant nie łączy się z lokalnym brokerem
-- Upewnij się że addon jest uruchomiony (status: **Running**)
-- Sprawdź `configuration.yaml` - broker powinien być `localhost:1883`
-- Zrestartuj Home Assistant po zmianie konfiguracji MQTT
+**Issue**: Home Assistant won't connect to local broker
+- Ensure addon is running (status: **Running**)
+- Check `configuration.yaml` - broker should be `localhost:1883`
+- Restart Home Assistant after changing MQTT configuration
 
-**Problem**: Brak synchronizacji z upstream brokerami
-- Sprawdź dane logowania (username/password)
-- Sprawdź dostępność sieciową (ping do upstream brokerów)
-- Sprawdź firewall i uprawnienia użytkownika MQTT
-- Sprawdź logi addonu - zobaczysz błędy połączeń
+**Issue**: No synchronization with upstream brokers
+- Check login credentials (username/password)
+- Check network availability (ping upstream brokers)
+- Check firewall and MQTT user permissions
+- Check addon logs - you'll see connection errors
 
-**Problem**: Duplikaty wiadomości
-- Nie powinno się zdarzać - addon ma wbudowaną detekcję pętli
-- Jeśli występuje, zwiększ `retain_cache_ttl_sec`
-- Sprawdź logi - zobaczysz "Ignoring duplicate message" gdy działa detekcja
+**Issue**: Duplicate messages
+- Shouldn't happen - addon has built-in loop detection
+- If it occurs, increase `retain_cache_ttl_sec`
+- Check logs - you'll see "Ignoring duplicate message" when detection works
 
 ## 📝 Changelog
 
-Zobacz [CHANGELOG.md](CHANGELOG.md) dla pełnej historii zmian.
+See [CHANGELOG.md](CHANGELOG.md) for full change history.
 
-**Najnowsza wersja: v2.0.1**
-- Kompletny redesign architektury (virtual unified broker)
+**Latest version: v2.0.2**
+- Complete architecture redesign (virtual unified broker)
 - Node.js 20 + TypeScript + Aedes + mqtt.js
 - LRU cache deduplication + MQTT v5 origin tagging
-- Nieograniczona liczba upstream brokerów
+- Unlimited number of upstream brokers
 
 ## 🛠️ Stack Technologiczny
 
@@ -202,18 +202,18 @@ Zobacz [CHANGELOG.md](CHANGELOG.md) dla pełnej historii zmian.
 - **TypeScript 5.6** - type-safe development
 - **Aedes 0.51.3** - lightweight MQTT broker library
 - **mqtt.js 5.10.1** - MQTT v5 client library
-- **lru-cache 10.4.3** - deduplikacja wiadomości
+- **lru-cache 10.4.3** - message deduplication
 - **Alpine Linux 3.20** - Docker base image
 
-## 📄 Licencja
+## 📄 License
 
-MIT License - zobacz [LICENSE](LICENSE)
+MIT License - see [LICENSE](LICENSE)
 
-## 🤝 Wsparcie
+## 🤝 Support
 
-- 🐛 **Zgłoś problem**: [GitHub Issues](https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link/issues)
-- 💬 **Dyskusja**: [GitHub Discussions](https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link/discussions)
+- 🐛 **Report Issue**: [GitHub Issues](https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link/issues)
+- 💬 **Discussion**: [GitHub Discussions](https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link/discussions)
 
-## ⭐ Podoba Ci się?
+## ⭐ Like it?
 
-Zostaw ⭐ na [GitHub](https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link)!
+Leave a ⭐ on [GitHub](https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link)!
