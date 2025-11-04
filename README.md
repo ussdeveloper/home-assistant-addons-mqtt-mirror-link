@@ -31,7 +31,17 @@ MQTT Mirror Link to custom integration dla Home Assistant, która działa jak mo
 
 ## 📦 Instalacja
 
-### Metoda 1: HACS (zalecana)
+### Metoda 1: Home Assistant Add-on (zalecana) ⭐
+
+1. W Home Assistant przejdź do **Settings** → **Add-ons**
+2. Kliknij **Add-on Store** (prawy dolny róg)
+3. Menu **⋮** (prawy górny róg) → **Repositories**
+4. Dodaj URL: `https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link`
+5. Znajdź **MQTT Mirror Link** i kliknij
+6. Kliknij **INSTALL**
+7. Skonfiguruj i uruchom
+
+### Metoda 2: HACS Custom Integration
 
 1. Otwórz **HACS** w Home Assistant
 2. Przejdź do **Integrations**
@@ -43,7 +53,7 @@ MQTT Mirror Link to custom integration dla Home Assistant, która działa jak mo
 8. Znajdź **MQTT Mirror Link** i kliknij **Download**
 9. **Zrestartuj** Home Assistant
 
-### Metoda 2: Instalacja manualna
+### Metoda 3: Instalacja manualna
 
 1. Pobierz najnowszą wersję z [Releases](https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link/releases)
 2. Rozpakuj i skopiuj folder `custom_components/mqtt_link` do katalogu `custom_components` w Home Assistant:

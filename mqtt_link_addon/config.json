@@ -1,0 +1,48 @@
+{
+  "name": "MQTT Mirror Link",
+  "version": "1.0.0",
+  "slug": "mqtt_mirror_link",
+  "description": "Synchronizuj komunikaty MQTT między dwoma brokerami - linkuj dwie instancje Home Assistant!",
+  "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"],
+  "url": "https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link",
+  "startup": "services",
+  "boot": "auto",
+  "init": false,
+  "options": {
+    "broker_a": {
+      "host": "localhost",
+      "port": 1883,
+      "username": "",
+      "password": "",
+      "topic": "#"
+    },
+    "broker_b": {
+      "host": "",
+      "port": 1883,
+      "username": "",
+      "password": "",
+      "topic": "#"
+    },
+    "bidirectional": true,
+    "log_level": "info"
+  },
+  "schema": {
+    "broker_a": {
+      "host": "str",
+      "port": "port",
+      "username": "str?",
+      "password": "password?",
+      "topic": "str"
+    },
+    "broker_b": {
+      "host": "str",
+      "port": "port",
+      "username": "str?",
+      "password": "password?",
+      "topic": "str"
+    },
+    "bidirectional": "bool",
+    "log_level": "list(debug|info|warning|error)?"
+  },
+  "image": "ghcr.io/ussdeveloper/mqtt-mirror-link-{arch}"
+}
