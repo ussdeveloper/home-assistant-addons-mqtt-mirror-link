@@ -1,6 +1,6 @@
 {
   "name": "MQTT Unified Broker",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "slug": "mqtt_unified_broker",
   "description": "Virtual unified MQTT broker - expose single endpoint for multiple HA instances with safe upstream bridging",
   "arch": ["aarch64", "amd64", "armhf", "armv7", "i386"],

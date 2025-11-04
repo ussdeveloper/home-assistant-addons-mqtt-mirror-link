@@ -1,4 +1,13 @@
-## What's changed
+## What's Changed
+
+## Version 2.0.2 (2024)
+### 🧹 Cleanup
+- ✅ Removed HACS integration files
+- ✅ Removed custom_components/ directory
+- ✅ Removed GitHub Actions workflows
+- ✅ Simplified documentation
+- ✅ Fixed .gitignore
+- ✅ Translated all texts to English
 
 ## Version 2.0.1 (2024)
 ### 🐛 Bug Fixes

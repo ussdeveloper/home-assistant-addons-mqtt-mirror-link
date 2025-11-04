@@ -11,29 +11,29 @@ Brak zaplanowanych zmian.
 
 ## [1.0.0] - 2025-11-04
 
-### 🎉 Pierwsza wersja publiczna
+### 🎉 First Public Release
 
 #### Added
-- ✅ Synchronizacja dwukierunkowa komunikatów MQTT między dwoma brokerami
-- ✅ Opcja synchronizacji jednokierunkowej (A→B tylko)
-- ✅ Konfiguracja przez UI Home Assistant (config flow)
-- ✅ Filtrowanie tematów MQTT (wildcard support: `#`, `+`)
-- ✅ Pełne uwierzytelnianie MQTT (username/password)
-- ✅ Zachowanie QoS flags (0, 1, 2)
-- ✅ Zachowanie retain flags
-- ✅ Automatyczne reconnect po utracie połączenia
-- ✅ Wsparcie dla HACS (Home Assistant Community Store)
-- ✅ Dokumentacja PL/EN
-- ✅ Przykłady konfiguracji
+- ✅ Bidirectional MQTT message synchronization between two brokers
+- ✅ Unidirectional synchronization option (A→B only)
+- ✅ Configuration via Home Assistant UI (config flow)
+- ✅ MQTT topic filtering (wildcard support: `#`, `+`)
+- ✅ Full MQTT authentication (username/password)
+- ✅ QoS flags preservation (0, 1, 2)
+- ✅ Retain flags preservation
+- ✅ Automatic reconnect after connection loss
+- ✅ HACS support (Home Assistant Community Store)
+- ✅ Documentation in PL/EN
+- ✅ Configuration examples
 - ✅ CI/CD pipeline (GitHub Actions)
 
 #### Documentation
-- 📖 README.md z pełną dokumentacją
-- 📖 QUICKSTART.md - szybki start
-- 📖 EXAMPLES.md - przykłady użycia
-- 📖 PUBLICATION_GUIDE.md - przewodnik publikacji
-- 📖 CONTRIBUTING.md - przewodnik dla developerów
-- 📖 info.md - opis dla HACS
+- 📖 README.md with full documentation
+- 📖 QUICKSTART.md - quick start guide
+- 📖 EXAMPLES.md - usage examples
+- 📖 PUBLICATION_GUIDE.md - publication guide
+- 📖 CONTRIBUTING.md - developer guide
+- 📖 info.md - HACS description
 
 #### Infrastructure
 - 🔧 GitHub Actions workflows (validate, release)
@@ -43,62 +43,55 @@ Brak zaplanowanych zmian.
 
 ---
 
-## Planowane funkcje (roadmap)
+## Planned Features (Roadmap)
 
-### [1.1.0] - TBD
-- [ ] Wsparcie dla MQTT 5
-- [ ] QoS filtering
-- [ ] Statistics i monitoring
-- [ ] UI diagnostyki
-
-### [1.2.0] - TBD
+### [3.0.0] - TBD
+- [ ] Enhanced statistics and monitoring
+- [ ] Web UI for configuration
 - [ ] Topic transformations
 - [ ] Payload filtering/modification
-- [ ] Multiple brokers (więcej niż 2)
-
-### [2.0.0] - TBD
-- [ ] Docker standalone version
-- [ ] Web UI
-- [ ] REST API
 
 ---
 
-## Format zmian
+## Change Format
 
 ### Categories
-- **Added**: Nowe funkcje
-- **Changed**: Zmiany w istniejącej funkcjonalności
-- **Deprecated**: Funkcje do usunięcia w przyszłości
-- **Removed**: Usunięte funkcje
-- **Fixed**: Naprawione błędy
-- **Security**: Łatki bezpieczeństwa
+- **Added**: New features
+- **Changed**: Changes in existing functionality
+- **Deprecated**: Features to be removed in the future
+- **Removed**: Removed features
+- **Fixed**: Bug fixes
+- **Security**: Security patches
 
-### Przykład wpisu
+### Example Entry
 ```markdown
-## [1.1.0] - 2025-12-01
+## [3.0.0] - 2026-01-01
 
 ### Added
-- Wsparcie dla MQTT 5 protocol
-- QoS filtering w konfiguracji
+- MQTT 5 enhanced features
+- QoS filtering in configuration
 
 ### Fixed
-- Naprawiono pętlę komunikatów przy bidirectional sync
-- Poprawiono memory leak przy długim działaniu
+- Fixed message loop in bidirectional sync
+- Fixed memory leak during long operation
 
 ### Changed
-- Zaktualizowano paho-mqtt do 2.0.0
+- Updated mqtt.js to 6.0.0
 ```
 
 ---
 
-## Historia rozwoju
+## Development History
 
-- **2025-11-04**: Pierwsza wersja publiczna (v1.0.0)
-- **2025-11-03**: Rozpoczęcie projektu
+- **2025-11-04**: v2.0.2 - Repository cleanup
+- **2025-11-04**: v2.0.1 - Bug fixes
+- **2025-11-04**: v2.0.0 - Complete rewrite (Node.js/TypeScript)
+- **2025-11-04**: v1.0.0 - First public release (Python)
+- **2025-11-03**: Project started
 
 ---
 
-## Linki
+## Links
 
 - [Releases](https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link/releases)
 - [Issues](https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link/issues)
