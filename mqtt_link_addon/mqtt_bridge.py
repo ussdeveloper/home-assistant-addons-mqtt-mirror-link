@@ -5,6 +5,8 @@ import logging
 import signal
 import sys
 import time
+import hashlib
+from collections import OrderedDict
 import paho.mqtt.client as mqtt
 
 _LOGGER = logging.getLogger(__name__)
@@ -17,6 +19,10 @@ class MQTTBridge:
         """Initialize the bridge."""
         self.args = args
         self.running = False
+        
+        # Loop prevention: Track recently forwarded messages
+        self.message_cache = OrderedDict()
+        self.max_cache_size = 1000
         
         # Klienci MQTT
         self.client_a = mqtt.Client(client_id="mqtt_bridge_a")
@@ -61,10 +67,40 @@ class MQTTBridge:
         else:
             _LOGGER.error(f"Failed to connect to broker B, code: {rc}")
 
+    def _is_duplicate(self, topic, payload, direction):
+        """Check if message is a duplicate (loop prevention)."""
+        if not self.args.loop_prevention:
+            return False
+            
+        # Create message fingerprint
+        msg_hash = hashlib.md5(f"{topic}:{payload}:{direction}".encode()).hexdigest()
+        current_time = time.time()
+        
+        # Check if message was recently forwarded
+        if msg_hash in self.message_cache:
+            last_time = self.message_cache[msg_hash]
+            if current_time - last_time < self.args.message_ttl:
+                _LOGGER.debug(f"Duplicate detected: {topic} (direction: {direction})")
+                return True
+        
+        # Add to cache
+        self.message_cache[msg_hash] = current_time
+        
+        # Limit cache size
+        if len(self.message_cache) > self.max_cache_size:
+            self.message_cache.popitem(last=False)
+            
+        return False
+
     def _on_message_a(self, client, userdata, msg):
         """Callback for messages from broker A."""
         if not self.running:
             return
+            
+        # Check for duplicates
+        if self._is_duplicate(msg.topic, msg.payload, "A->B"):
+            return
+            
         try:
             _LOGGER.debug(f"A->B: {msg.topic} = {msg.payload}")
             self.client_b.publish(msg.topic, msg.payload, qos=msg.qos, retain=msg.retain)
@@ -75,6 +111,11 @@ class MQTTBridge:
         """Callback for messages from broker B."""
         if not self.running or not self.args.bidirectional:
             return
+            
+        # Check for duplicates
+        if self._is_duplicate(msg.topic, msg.payload, "B->A"):
+            return
+            
         try:
             _LOGGER.debug(f"B->A: {msg.topic} = {msg.payload}")
             self.client_a.publish(msg.topic, msg.payload, qos=msg.qos, retain=msg.retain)
@@ -117,11 +158,13 @@ class MQTTBridge:
         except Exception as e:
             _LOGGER.error(f"Error starting MQTT Mirror Link: {e}")
             self.stop()
-
-    def stop(self):
-        """Stop the bridge."""
-        _LOGGER.info("Stopping MQTT Mirror Link...")
-        self.running = False
+    # Options
+    parser.add_argument("--bidirectional", type=lambda x: x.lower() == 'true', default=True, help="Bidirectional sync")
+    parser.add_argument("--log-level", default="info", choices=["debug", "info", "warning", "error"], help="Log level")
+    parser.add_argument("--loop-prevention", type=lambda x: x.lower() == 'true', default=True, help="Enable loop prevention")
+    parser.add_argument("--message-ttl", type=int, default=2, help="Message TTL in seconds for loop prevention")
+    
+    return parser.parse_args()
         
         if self.client_a:
             self.client_a.loop_stop()

@@ -1,7 +1,10 @@
 """MQTT Link Integration - synchronize MQTT messages between two brokers."""
 import logging
 import asyncio
+import hashlib
+import time
 from typing import Any
+from collections import OrderedDict
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -65,6 +68,8 @@ class MQTTBridge:
         
         # Synchronization options
         self.bidirectional = config.get("bidirectional", True)
+        self.loop_prevention = config.get("loop_prevention", True)
+        self.message_ttl = config.get("message_ttl", 2)
         
         # MQTT clients
         self.client_a = None
@@ -72,6 +77,10 @@ class MQTTBridge:
         
         # Running flag
         self.running = False
+        
+        # Loop prevention: Track recently forwarded messages
+        self.message_cache = OrderedDict()
+        self.max_cache_size = 1000
 
     def start(self) -> None:
         """Start MQTT bridge."""
@@ -151,15 +160,38 @@ class MQTTBridge:
     def _on_connect_b(self, client, userdata, flags, rc):
         """Callback called after connecting to broker B."""
         if rc == 0:
-            _LOGGER.info(f"Connected to broker B, subscribing to: {self.broker_b_topic}")
-            if self.bidirectional:
-                client.subscribe(self.broker_b_topic)
-        else:
-            _LOGGER.error(f"Failed to connect to broker B, code: {rc}")
+    def _is_duplicate(self, topic, payload, direction):
+        """Check if message is a duplicate (loop prevention)."""
+        if not self.loop_prevention:
+            return False
+            
+        # Create message fingerprint
+        msg_hash = hashlib.md5(f"{topic}:{payload}:{direction}".encode()).hexdigest()
+        current_time = time.time()
+        
+        # Check if message was recently forwarded
+        if msg_hash in self.message_cache:
+            last_time = self.message_cache[msg_hash]
+            if current_time - last_time < self.message_ttl:
+                _LOGGER.debug(f"Duplicate detected: {topic} (direction: {direction})")
+                return True
+        
+        # Add to cache
+        self.message_cache[msg_hash] = current_time
+        
+        # Limit cache size
+        if len(self.message_cache) > self.max_cache_size:
+            self.message_cache.popitem(last=False)
+            
+        return False
 
     def _on_message_a(self, client, userdata, msg):
         """Callback called after receiving message from broker A."""
         if not self.running:
+            return
+            
+        # Check for duplicates
+        if self._is_duplicate(msg.topic, msg.payload, "A->B"):
             return
             
         try:
@@ -174,6 +206,16 @@ class MQTTBridge:
         if not self.running or not self.bidirectional:
             return
             
+        # Check for duplicates
+        if self._is_duplicate(msg.topic, msg.payload, "B->A"):
+            return
+            
+        try:
+            # Forward message to broker A
+            _LOGGER.debug(f"B->A: {msg.topic} = {msg.payload}")
+            self.client_a.publish(msg.topic, msg.payload, qos=msg.qos, retain=msg.retain)
+        except Exception as e:
+            _LOGGER.error(f"Error forwarding message B->A: {e}")
         try:
             # Forward message to broker A
             _LOGGER.debug(f"B->A: {msg.topic} = {msg.payload}")

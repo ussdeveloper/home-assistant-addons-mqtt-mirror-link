@@ -1,6 +1,6 @@
 {
   "name": "MQTT Mirror Link",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "slug": "mqtt_mirror_link",
   "description": "Synchronize MQTT messages between two brokers - link two Home Assistant instances!",
   "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"],
@@ -25,7 +25,9 @@
       "topic": "#"
     },
     "bidirectional": true,
-    "log_level": "info"
+    "log_level": "info",
+    "loop_prevention": true,
+    "message_ttl": 2
   },
   "schema": {
     "broker_a": {
@@ -43,6 +45,8 @@
       "topic": "str"
     },
     "bidirectional": "bool",
-    "log_level": "list(debug|info|warning|error)?"
+    "log_level": "list(debug|info|warning|error)?",
+    "loop_prevention": "bool?",
+    "message_ttl": "int(1,10)?"
   }
 }

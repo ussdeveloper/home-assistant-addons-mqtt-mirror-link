@@ -20,10 +20,13 @@ BROKER_B_TOPIC=$(bashio::config 'broker_b.topic')
 
 BIDIRECTIONAL=$(bashio::config 'bidirectional')
 LOG_LEVEL=$(bashio::config 'log_level')
+LOOP_PREVENTION=$(bashio::config 'loop_prevention')
+MESSAGE_TTL=$(bashio::config 'message_ttl')
 
 bashio::log.info "Broker A: ${BROKER_A_HOST}:${BROKER_A_PORT}"
 bashio::log.info "Broker B: ${BROKER_B_HOST}:${BROKER_B_PORT}"
 bashio::log.info "Bidirectional: ${BIDIRECTIONAL}"
+bashio::log.info "Loop Prevention: ${LOOP_PREVENTION}"
 
 # Start Python application
 exec python3 /app/mqtt_bridge.py \
@@ -38,4 +41,6 @@ exec python3 /app/mqtt_bridge.py \
     --broker-b-password "${BROKER_B_PASSWORD}" \
     --broker-b-topic "${BROKER_B_TOPIC}" \
     --bidirectional "${BIDIRECTIONAL}" \
-    --log-level "${LOG_LEVEL}"
+    --log-level "${LOG_LEVEL}" \
+    --loop-prevention "${LOOP_PREVENTION}" \
+    --message-ttl "${MESSAGE_TTL}"
