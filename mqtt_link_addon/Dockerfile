@@ -4,17 +4,25 @@ FROM $BUILD_FROM
 # Set working directory
 WORKDIR /app
 
-# Install Python3 and pip
+# Install Node.js 20 and npm
 RUN apk add --no-cache \
-    python3 \
-    py3-pip \
-    && ln -sf python3 /usr/bin/python
+    nodejs \
+    npm
 
-# Install required Python packages
-RUN pip3 install --no-cache-dir --break-system-packages paho-mqtt==1.6.1
+# Copy package files
+COPY package*.json ./
+COPY tsconfig.json ./
 
-# Copy application files
-COPY mqtt_bridge.py /app/
+# Install dependencies (production only)
+RUN npm ci --only=production
+
+# Copy source code
+COPY src/ ./src/
+
+# Build TypeScript
+RUN npm run build
+
+# Copy startup script
 COPY run.sh /
 RUN chmod a+x /run.sh
 

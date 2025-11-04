@@ -1,0 +1,24 @@
+{
+  "name": "ha-mqtt-unifier",
+  "version": "2.0.0",
+  "description": "Virtual unified MQTT broker for Home Assistant with safe upstream bridging",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -p .",
+    "start": "node dist/index.js",
+    "dev": "tsc -w"
+  },
+  "dependencies": {
+    "aedes": "^0.51.3",
+    "lru-cache": "^10.4.3",
+    "mqtt": "^5.10.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.6",
+    "typescript": "^5.6.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

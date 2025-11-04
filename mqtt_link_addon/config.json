@@ -1,52 +1,62 @@
 {
-  "name": "MQTT Mirror Link",
-  "version": "1.0.4",
-  "slug": "mqtt_mirror_link",
-  "description": "Synchronize MQTT messages between two brokers - link two Home Assistant instances!",
-  "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"],
+  "name": "MQTT Unified Broker",
+  "version": "2.0.0",
+  "slug": "mqtt_unified_broker",
+  "description": "Virtual unified MQTT broker - expose single endpoint for multiple HA instances with safe upstream bridging",
+  "arch": ["aarch64", "amd64", "armhf", "armv7", "i386"],
   "url": "https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link",
   "startup": "services",
   "boot": "auto",
   "init": false,
   "host_network": true,
   "options": {
-    "broker_a": {
-      "host": "localhost",
-      "port": 1883,
-      "username": "",
-      "password": "",
-      "topic": "#"
+    "upstreams": [
+      {
+        "id": "upstream_a",
+        "host": "192.168.1.10",
+        "port": 1883,
+        "username": "",
+        "password": "",
+        "topic": "#"
+      },
+      {
+        "id": "upstream_b",
+        "host": "192.168.1.11",
+        "port": 1883,
+        "username": "",
+        "password": "",
+        "topic": "#"
+      }
+    ],
+    "listen": {
+      "host": "0.0.0.0",
+      "port": 1883
     },
-    "broker_b": {
-      "host": "",
-      "port": 1883,
-      "username": "",
-      "password": "",
-      "topic": "#"
-    },
-    "bidirectional": true,
-    "log_level": "info",
-    "loop_prevention": true,
-    "message_ttl": 2
+    "discovery_prefix": "homeassistant",
+    "retain_cache_ttl_sec": 30,
+    "max_lru": 50000,
+    "qos_default": 0,
+    "log_level": "info"
   },
   "schema": {
-    "broker_a": {
+    "upstreams": [
+      {
+        "id": "str",
+        "host": "str",
+        "port": "port",
+        "username": "str?",
+        "password": "password?",
+        "topic": "str?"
+      }
+    ],
+    "listen": {
       "host": "str",
-      "port": "port",
-      "username": "str?",
-      "password": "password?",
-      "topic": "str"
+      "port": "port"
     },
-    "broker_b": {
-      "host": "str",
-      "port": "port",
-      "username": "str?",
-      "password": "password?",
-      "topic": "str"
-    },
-    "bidirectional": "bool",
-    "log_level": "list(debug|info|warning|error)?",
-    "loop_prevention": "bool?",
-    "message_ttl": "int(1,10)?"
+    "discovery_prefix": "str?",
+    "retain_cache_ttl_sec": "int(10,300)?",
+    "max_lru": "int(1000,100000)?",
+    "qos_default": "int(0,2)?",
+    "log_level": "list(debug|info|warning|error)?"
   }
 }

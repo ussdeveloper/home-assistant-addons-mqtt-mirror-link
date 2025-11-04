@@ -1,46 +1,28 @@
 #!/usr/bin/with-contenv bashio
 # ==============================================================================
-# MQTT Mirror Link Add-on for Home Assistant
+# MQTT Unified Broker Add-on for Home Assistant
 # ==============================================================================
 
-bashio::log.info "Starting MQTT Mirror Link..."
+bashio::log.info "Starting MQTT Unified Broker..."
 
-# Get configuration
-BROKER_A_HOST=$(bashio::config 'broker_a.host')
-BROKER_A_PORT=$(bashio::config 'broker_a.port')
-BROKER_A_USERNAME=$(bashio::config 'broker_a.username')
-BROKER_A_PASSWORD=$(bashio::config 'broker_a.password')
-BROKER_A_TOPIC=$(bashio::config 'broker_a.topic')
+# Display configuration summary
+bashio::log.info "Configuration:"
+bashio::log.info "- Listen: $(bashio::config 'listen.host'):$(bashio::config 'listen.port')"
+bashio::log.info "- Discovery prefix: $(bashio::config 'discovery_prefix')"
+bashio::log.info "- LRU cache: $(bashio::config 'max_lru') entries, TTL: $(bashio::config 'retain_cache_ttl_sec')s"
+bashio::log.info "- Log level: $(bashio::config 'log_level')"
 
-BROKER_B_HOST=$(bashio::config 'broker_b.host')
-BROKER_B_PORT=$(bashio::config 'broker_b.port')
-BROKER_B_USERNAME=$(bashio::config 'broker_b.username')
-BROKER_B_PASSWORD=$(bashio::config 'broker_b.password')
-BROKER_B_TOPIC=$(bashio::config 'broker_b.topic')
+# Count upstreams
+UPSTREAM_COUNT=$(bashio::config 'upstreams | length')
+bashio::log.info "- Upstreams: ${UPSTREAM_COUNT}"
 
-BIDIRECTIONAL=$(bashio::config 'bidirectional')
-LOG_LEVEL=$(bashio::config 'log_level')
-LOOP_PREVENTION=$(bashio::config 'loop_prevention')
-MESSAGE_TTL=$(bashio::config 'message_ttl')
+for i in $(seq 0 $((UPSTREAM_COUNT - 1))); do
+    UP_ID=$(bashio::config "upstreams[${i}].id")
+    UP_HOST=$(bashio::config "upstreams[${i}].host")
+    UP_PORT=$(bashio::config "upstreams[${i}].port")
+    bashio::log.info "  * ${UP_ID}: ${UP_HOST}:${UP_PORT}"
+done
 
-bashio::log.info "Broker A: ${BROKER_A_HOST}:${BROKER_A_PORT}"
-bashio::log.info "Broker B: ${BROKER_B_HOST}:${BROKER_B_PORT}"
-bashio::log.info "Bidirectional: ${BIDIRECTIONAL}"
-bashio::log.info "Loop Prevention: ${LOOP_PREVENTION}"
-
-# Start Python application
-exec python3 /app/mqtt_bridge.py \
-    --broker-a-host "${BROKER_A_HOST}" \
-    --broker-a-port "${BROKER_A_PORT}" \
-    --broker-a-username "${BROKER_A_USERNAME}" \
-    --broker-a-password "${BROKER_A_PASSWORD}" \
-    --broker-a-topic "${BROKER_A_TOPIC}" \
-    --broker-b-host "${BROKER_B_HOST}" \
-    --broker-b-port "${BROKER_B_PORT}" \
-    --broker-b-username "${BROKER_B_USERNAME}" \
-    --broker-b-password "${BROKER_B_PASSWORD}" \
-    --broker-b-topic "${BROKER_B_TOPIC}" \
-    --bidirectional "${BIDIRECTIONAL}" \
-    --log-level "${LOG_LEVEL}" \
-    --loop-prevention "${LOOP_PREVENTION}" \
-    --message-ttl "${MESSAGE_TTL}"
+# Run the unified broker
+cd /app
+exec node dist/index.js
