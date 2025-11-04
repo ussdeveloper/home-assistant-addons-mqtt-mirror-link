@@ -1,167 +1,209 @@
-# MQTT Mirror Link
+# MQTT Mirror Link - Home Assistant Add-on
 
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
 [![GitHub Release](https://img.shields.io/github/release/ussdeveloper/home-assistant-addons-mqtt-mirror-link.svg)](https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link/releases)
 [![License](https://img.shields.io/github/license/ussdeveloper/home-assistant-addons-mqtt-mirror-link.svg)](LICENSE)
 
-**Synchronizacja komunikatów MQTT między dwoma brokerami - linkuj dwie instancje Home Assistant przez MQTT!**
-
-## 📚 Dokumentacja
-
-- 🚀 [QUICKSTART.md](QUICKSTART.md) - Szybki start (3 kroki do działania!)
-- 📖 [EXAMPLES.md](EXAMPLES.md) - 10+ przykładów konfiguracji
-- 📝 [PUBLICATION_GUIDE.md](PUBLICATION_GUIDE.md) - Jak opublikować na GitHub
-- ✅ [CHECKLIST.md](CHECKLIST.md) - Lista kontrolna przed publikacją
-- 🤝 [CONTRIBUTING.md](CONTRIBUTING.md) - Jak pomóc w rozwoju
-- 📋 [CHANGELOG.md](CHANGELOG.md) - Historia zmian
+**Wirtualny, jednolity broker MQTT dla Home Assistant - łącz wiele upstream brokerów w jedno!**
 
 ## 🎯 Co to robi?
 
-MQTT Mirror Link to custom integration dla Home Assistant, która działa jak most (bridge) między dwoma brokerami MQTT. Dzięki niej możesz linkować dwie instancje Home Assistant przez MQTT, tak aby wszystkie komunikaty z jednej instancji były automatycznie przekazywane do drugiej.
+MQTT Mirror Link to Home Assistant Add-on, który tworzy **wirtualny, jednolity broker MQTT** (lokalny endpoint dla Home Assistant). Addon wewnętrznie łączy się z wieloma upstream brokerami MQTT, tworząc jednolitą przestrzeń komunikatów.
+
+### Architektura v2.0
+
+```
+Home Assistant
+      ↕
+Local Broker (localhost:1883)  ← Ten addon
+      ↕              ↕
+Upstream A     Upstream B
+(broker 1)     (broker 2)
+```
+
+**Jak to działa:**
+- Home Assistant łączy się tylko do lokalnego brokera (ten addon)
+- Addon łączy się do wielu upstream brokerów (dowolna liczba)
+- Wszystkie komunikaty są automatycznie synchronizowane
+- Wbudowana detekcja pętli (LRU cache + MQTT v5 origin tagging)
 
 ## ✨ Funkcje
 
-- ✅ **Synchronizacja dwukierunkowa** - komunikaty mogą przepływać w obie strony (A→B i B→A)
-- ✅ **Synchronizacja jednokierunkowa** - możliwość ustawienia przepływu tylko w jednym kierunku
-- ✅ **Filtrowanie tematów** - subskrybuj tylko wybrane tematy MQTT (np. `homeassistant/#`)
-- ✅ **Uwierzytelnianie** - pełne wsparcie dla loginu i hasła MQTT
-- ✅ **Konfiguracja przez UI** - łatwa konfiguracja przez interfejs Home Assistant
-- ✅ **Zachowanie QoS i retain** - wszystkie atrybuty wiadomości są zachowywane
+- ✅ **Wirtualny jednolity broker** - jeden endpoint dla Home Assistant
+- ✅ **Wiele upstream brokerów** - nieograniczona liczba połączeń
+- ✅ **Automatyczna detekcja pętli** - sha1 hashing + LRU cache (50k wiadomości, 30s TTL)
+- ✅ **MQTT v5 origin tagging** - user properties do śledzenia źródła
+- ✅ **Fan-in/fan-out routing** - lokalny→wszystkie upstreamy, upstream A→lokalny+upstream B
+- ✅ **Filtrowanie $SYS/#** - wyklucza systemowe topiki brokerów
+- ✅ **Uwierzytelnianie** - pełne wsparcie dla username/password
 - ✅ **Automatyczne reconnect** - po utracie połączenia
+- ✅ **Node.js 20 + TypeScript** - nowoczesny stack technologiczny
 
 ## 📦 Instalacja
-
-### Metoda 1: Home Assistant Add-on (zalecana) ⭐
 
 1. W Home Assistant przejdź do **Settings** → **Add-ons**
 2. Kliknij **Add-on Store** (prawy dolny róg)
 3. Menu **⋮** (prawy górny róg) → **Repositories**
 4. Dodaj URL: `https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link`
-5. Znajdź **MQTT Mirror Link** i kliknij
-6. Kliknij **INSTALL**
-7. Skonfiguruj i uruchom
+5. Znajdź **MQTT Mirror Link** i kliknij **INSTALL**
+6. Przejdź do zakładki **Configuration**
+7. Skonfiguruj (zobacz przykłady poniżej)
+8. Uruchom addon (zakładka **Info** → **START**)
 
-### Metoda 2: HACS Custom Integration
+## ⚙️ Konfiguracja
 
-1. Otwórz **HACS** w Home Assistant
-2. Przejdź do **Integrations**
-3. Kliknij menu **⋮** (prawym górnym rogu)
-4. Wybierz **Custom repositories**
-5. Wklej URL: `https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link`
-6. Kategoria: **Integration**
-7. Kliknij **Add**
-8. Znajdź **MQTT Mirror Link** i kliknij **Download**
-9. **Zrestartuj** Home Assistant
+### Parametry lokalne (Local Broker)
 
-### Metoda 3: Instalacja manualna
+- **listen.host** - IP gdzie słucha lokalny broker (domyślnie: `0.0.0.0`)
+- **listen.port** - Port lokalnego brokera (domyślnie: `1883`)
 
-1. Pobierz najnowszą wersję z [Releases](https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link/releases)
-2. Rozpakuj i skopiuj folder `custom_components/mqtt_link` do katalogu `custom_components` w Home Assistant:
-   ```
-   <config_dir>/custom_components/mqtt_link/
-   ```
-3. Zrestartuj Home Assistant
+### Parametry upstream brokerów
 
-## Konfiguracja
-
-### Krok 1: Dodaj integrację
-
-1. W Home Assistant przejdź do **Ustawienia** → **Urządzenia i usługi**
-2. Kliknij **+ DODAJ INTEGRACJĘ**
-3. Wyszukaj **MQTT Link**
-
-### Krok 2: Skonfiguruj Broker A (lokalny)
-
-Podaj dane połączenia do pierwszego brokera MQTT (zazwyczaj lokalny Home Assistant):
-
-- **Host**: adres IP lub hostname (domyślnie: `localhost`)
-- **Port**: port MQTT (domyślnie: `1883`)
-- **Użytkownik**: nazwa użytkownika (opcjonalnie)
-- **Hasło**: hasło (opcjonalnie)
-- **Temat**: temat MQTT do subskrypcji (domyślnie: `#` - wszystkie tematy)
-
-### Krok 3: Skonfiguruj Broker B (zdalny)
-
-Podaj dane połączenia do drugiego brokera MQTT (zdalny Home Assistant):
-
-- **Host**: adres IP lub hostname zdalnego Home Assistant
-- **Port**: port MQTT (domyślnie: `1883`)
-- **Użytkownik**: nazwa użytkownika (opcjonalnie)
-- **Hasło**: hasło (opcjonalnie)
-- **Temat**: temat MQTT do subskrypcji (domyślnie: `#` - wszystkie tematy)
-- **Synchronizacja dwukierunkowa**: czy komunikaty mają płynąć w obie strony (domyślnie: TAK)
-
-## Przykłady użycia
-
-### Przykład 1: Pełna synchronizacja dwóch Home Assistant
-
-**Home Assistant A** (lokalny):
-- Host: `localhost`
-- Port: `1883`
-- Temat: `#`
-
-**Home Assistant B** (zdalny):
-- Host: `192.168.1.100`
-- Port: `1883`
-- Temat: `#`
-- Synchronizacja dwukierunkowa: ✓
-
-Rezultat: Wszystkie komunikaty MQTT z obu instancji będą zsynchronizowane.
-
-### Przykład 2: Synchronizacja tylko urządzeń Home Assistant
-
-**Home Assistant A**:
-- Temat: `homeassistant/#`
-
-**Home Assistant B**:
-- Temat: `homeassistant/#`
-
-Rezultat: Tylko komunikaty związane z urządzeniami Home Assistant będą synchronizowane.
-
-### Przykład 3: Jednokierunkowa synchronizacja
-
-**Home Assistant A** → **Home Assistant B**:
-- Synchronizacja dwukierunkowa: ✗
-
-Rezultat: Komunikaty płyną tylko z A do B, ale nie odwrotnie.
-
-## Rozwiązywanie problemów
-
-### Sprawdź logi
-
-Włącz szczegółowe logowanie w `configuration.yaml`:
+Tablica `upstreams` zawiera listę brokerów do połączenia:
 
 ```yaml
-logger:
-  default: info
-  logs:
-    custom_components.mqtt_link: debug
+upstreams:
+  - host: "192.168.1.100"
+    port: 1883
+    username: "mqtt_user"
+    password: "mqtt_pass"
+    topics: ["#"]
+    client_id: "ha-mqtt-unifier-upstream-1"
+    
+  - host: "192.168.1.200"
+    port: 1883
+    username: "mqtt_user2"
+    password: "mqtt_pass2"
+    topics: ["homeassistant/#", "zigbee2mqtt/#"]
+    client_id: "ha-mqtt-unifier-upstream-2"
 ```
+
+**Każdy upstream broker:**
+- `host` - adres IP lub hostname
+- `port` - port MQTT (domyślnie: 1883)
+- `username` - nazwa użytkownika (opcjonalne)
+- `password` - hasło (opcjonalne)
+- `topics` - lista tematów do subskrypcji (domyślnie: ["#"])
+- `client_id` - unikalny ID klienta MQTT
+
+### Dodatkowe parametry
+
+- **discovery_prefix** - prefiks Home Assistant discovery (domyślnie: `homeassistant`)
+- **retain_cache_ttl_sec** - TTL cache dla wiadomości z retain (domyślnie: 30)
+- **max_lru** - maksymalna wielkość LRU cache (domyślnie: 50000)
+
+## 📋 Przykłady konfiguracji
+
+### Przykład 1: Dwa brokery MQTT - pełna synchronizacja
+
+```yaml
+upstreams:
+  - host: "192.168.1.100"
+    port: 1883
+    username: "mqtt"
+    password: "secret1"
+    topics: ["#"]
+    client_id: "ha-unifier-broker1"
+    
+  - host: "192.168.1.200"
+    port: 1883
+    username: "mqtt"
+    password: "secret2"
+    topics: ["#"]
+    client_id: "ha-unifier-broker2"
+```
+
+### Przykład 2: Tylko topiki Home Assistant i Zigbee2MQTT
+
+```yaml
+upstreams:
+  - host: "192.168.1.100"
+    port: 1883
+    topics: 
+      - "homeassistant/#"
+      - "zigbee2mqtt/#"
+    client_id: "ha-unifier-filtered"
+```
+
+### Przykład 3: Trzy brokery - różne porty
+
+```yaml
+upstreams:
+  - host: "mqtt.home.local"
+    port: 1883
+    topics: ["#"]
+    
+  - host: "mqtt.cloud.com"
+    port: 8883
+    username: "cloud_user"
+    password: "cloud_pass"
+    topics: ["cloud/#"]
+    
+  - host: "192.168.1.150"
+    port: 1884
+    topics: ["sensors/#"]
+```
+
+### Konfiguracja Home Assistant
+
+Po uruchomieniu addonu, skonfiguruj Home Assistant aby łączył się do lokalnego brokera:
+
+**configuration.yaml:**
+```yaml
+mqtt:
+  broker: localhost
+  port: 1883
+  # username/password jeśli wymagane przez upstream brokery
+```
+
+## 🔧 Rozwiązywanie problemów
+
+### Sprawdź logi addonu
+
+W Home Assistant:
+1. Przejdź do **Settings** → **Add-ons** → **MQTT Mirror Link**
+2. Zakładka **Log** - sprawdź błędy połączeń z upstream brokerami
 
 ### Typowe problemy
 
-**Problem**: Integracja nie łączy się z brokerem
-- Sprawdź, czy broker MQTT jest uruchomiony
-- Sprawdź dane logowania (użytkownik/hasło)
-- Sprawdź firewall i porty
+**Problem**: Addon nie startuje
+- Sprawdź logi addonu
+- Upewnij się, że format konfiguracji YAML jest poprawny
+- Sprawdź czy port 1883 nie jest już zajęty
 
-**Problem**: Komunikaty się nie synchronizują
-- Sprawdź, czy tematy są poprawnie skonfigurowane
-- Upewnij się, że broker ma uprawnienia do publikacji/subskrypcji
-- Sprawdź logi pod kątem błędów
+**Problem**: Home Assistant nie łączy się z lokalnym brokerem
+- Upewnij się że addon jest uruchomiony (status: **Running**)
+- Sprawdź `configuration.yaml` - broker powinien być `localhost:1883`
+- Zrestartuj Home Assistant po zmianie konfiguracji MQTT
 
-**Problem**: Pętla komunikatów (duplikaty)
-- Użyj różnych tematów dla każdego brokera
-- Lub wyłącz synchronizację dwukierunkową
+**Problem**: Brak synchronizacji z upstream brokerami
+- Sprawdź dane logowania (username/password)
+- Sprawdź dostępność sieciową (ping do upstream brokerów)
+- Sprawdź firewall i uprawnienia użytkownika MQTT
+- Sprawdź logi addonu - zobaczysz błędy połączeń
+
+**Problem**: Duplikaty wiadomości
+- Nie powinno się zdarzać - addon ma wbudowaną detekcję pętli
+- Jeśli występuje, zwiększ `retain_cache_ttl_sec`
+- Sprawdź logi - zobaczysz "Ignoring duplicate message" gdy działa detekcja
 
 ## 📝 Changelog
 
-### v1.0.0 (2025-11-04)
-- 🎉 Pierwsza wersja publiczna
-- ✅ Synchronizacja dwukierunkowa MQTT
-- ✅ Konfiguracja przez UI
-- ✅ Wsparcie dla uwierzytelniania
-- ✅ Filtrowanie tematów
+Zobacz [CHANGELOG.md](CHANGELOG.md) dla pełnej historii zmian.
+
+**Najnowsza wersja: v2.0.1**
+- Kompletny redesign architektury (virtual unified broker)
+- Node.js 20 + TypeScript + Aedes + mqtt.js
+- LRU cache deduplication + MQTT v5 origin tagging
+- Nieograniczona liczba upstream brokerów
+
+## 🛠️ Stack Technologiczny
+
+- **Node.js 20** - runtime environment
+- **TypeScript 5.6** - type-safe development
+- **Aedes 0.51.3** - lightweight MQTT broker library
+- **mqtt.js 5.10.1** - MQTT v5 client library
+- **lru-cache 10.4.3** - deduplikacja wiadomości
+- **Alpine Linux 3.20** - Docker base image
 
 ## 📄 Licencja
 
@@ -169,38 +211,8 @@ MIT License - zobacz [LICENSE](LICENSE)
 
 ## 🤝 Wsparcie
 
-- 🐛 **Issues**: [GitHub Issues](https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link/issues)
-- 💬 **Dyskusje**: [GitHub Discussions](https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link/discussions)
-
-## 🚀 Jak opublikować na GitHub
-
-1. **Utwórz nowe repozytorium** na GitHub o nazwie `home-assistant-addons-mqtt-mirror-link`
-
-2. **Wypchnij pliki** do repozytorium:
-
-```bash
-cd "c:\Users\sulaco\Desktop\HomeAssistant MQTT LINK"
-git init
-git add .
-git commit -m "Initial commit: MQTT Mirror Link v1.0.0"
-git branch -M main
-git remote add origin https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link.git
-git push -u origin main
-```
-
-3. **Utwórz release**:
-   - Przejdź do **Releases** → **Create a new release**
-   - Tag: `v1.0.0`
-   - Title: `v1.0.0 - Initial Release`
-   - Description: Skopiuj opis z README
-   - Opublikuj!
-
-4. **Dodaj do HACS** w Home Assistant:
-   - Otwórz HACS → Integrations
-   - Menu (⋮) → Custom repositories
-   - URL: `https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link`
-   - Kategoria: Integration
-   - Teraz możesz zainstalować dodatek!
+- 🐛 **Zgłoś problem**: [GitHub Issues](https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link/issues)
+- 💬 **Dyskusja**: [GitHub Discussions](https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link/discussions)
 
 ## ⭐ Podoba Ci się?
 

@@ -1,7 +1,0 @@
-{
-  "name": "MQTT Mirror Link",
-  "content_in_root": false,
-  "filename": "mqtt_link",
-  "render_readme": true,
-  "homeassistant": "2023.1.0"
-}
