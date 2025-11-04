@@ -88,8 +88,9 @@ upstreams:
 ### Additional Parameters
 
 - **discovery_prefix** - Home Assistant discovery prefix (default: `homeassistant`)
-- **retain_cache_ttl_sec** - Cache TTL for retained messages (default: 30)
+- **retain_cache_ttl_sec** - Cache TTL for deduplication in seconds (default: 5, min: 1, max: 30)
 - **max_lru** - Maximum LRU cache size (default: 50000)
+- **log_level** - Logging verbosity: debug, info, warning, error (default: info)
 
 ## 📋 Configuration Examples
 
@@ -190,11 +191,12 @@ In Home Assistant:
 
 See [CHANGELOG.md](CHANGELOG.md) for full change history.
 
-**Latest version: v2.0.2**
+**Latest version: v2.0.3**
+- Fixed state synchronization issues between HA instances
+- Improved deduplication with time-based filtering
+- Faster state updates (5s cache TTL by default)
 - Complete architecture redesign (virtual unified broker)
 - Node.js 20 + TypeScript + Aedes + mqtt.js
-- LRU cache deduplication + MQTT v5 origin tagging
-- Unlimited number of upstream brokers
 
 ## 🛠️ Stack Technologiczny
 

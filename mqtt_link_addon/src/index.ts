@@ -75,7 +75,7 @@ try {
 }
 
 const DISCOVERY_PREFIX = config.discovery_prefix || 'homeassistant';
-const RETAIN_CACHE_TTL_MS = (config.retain_cache_ttl_sec || 30) * 1000;
+const RETAIN_CACHE_TTL_MS = (config.retain_cache_ttl_sec || 5) * 1000; // Reduced from 30s to 5s
 const MAX_LRU = config.max_lru || 50000;
 const QOS_DEFAULT = config.qos_default || 0;
 const LOG_LEVEL = config.log_level || 'info';
@@ -107,6 +107,25 @@ function hashMessage(topic: string, payload: Buffer | string, qos: number, retai
     .digest('hex');
 }
 
+function shouldFilterMessage(key: string, origin: string): boolean {
+  const cached = dedupCache.get(key);
+  if (!cached) {
+    return false;
+  }
+  
+  // Allow message if enough time has passed (quick state changes)
+  const now = Date.now();
+  const age = now - cached;
+  const minAge = 500; // 500ms minimum between identical messages
+  
+  if (age < minAge) {
+    log('debug', `Duplicate blocked: ${key} (age: ${age}ms, origin: ${origin})`);
+    return true;
+  }
+  
+  return false;
+}
+
 function markOriginV5(properties: any, origin: string): any {
   const props = properties || {};
   props.userProperties = props.userProperties || {};
@@ -124,13 +143,8 @@ const dedupCache = new LRUCache<string, number>({
   ttl: RETAIN_CACHE_TTL_MS,
 });
 
-function seenRecently(key: string): boolean {
-  if (dedupCache.has(key)) {
-    log('debug', `Duplicate detected: ${key}`);
-    return true;
-  }
+function markAsSeen(key: string): void {
   dedupCache.set(key, Date.now());
-  return false;
 }
 
 // ============================================================================
@@ -174,10 +188,10 @@ aedes.on('publish', async (packet: PublishPacket, client: AedesClient | null) =>
   
   // Deduplication
   const key = hashMessage(topic, payload, qos, retain);
-  if (seenRecently(key)) {
-    log('debug', `Duplicate from local client blocked: ${topic}`);
+  if (shouldFilterMessage(key, 'local')) {
     return;
   }
+  markAsSeen(key);
   
   log('debug', `Local->Upstreams: ${topic} (${payload.length} bytes, qos=${qos}, retain=${retain})`);
   
@@ -259,10 +273,10 @@ function connectUpstream(upConfig: UpstreamConfig): UpstreamClient {
     
     // Deduplication
     const key = hashMessage(topic, payload, qos, retain);
-    if (seenRecently(key)) {
-      log('debug', `Duplicate from upstream ${upConfig.id} blocked: ${topic}`);
+    if (shouldFilterMessage(key, upConfig.id)) {
       return;
     }
+    markAsSeen(key);
     
     log('debug', `Upstream ${upConfig.id}->Local: ${topic} (${payload.length} bytes, qos=${qos}, retain=${retain})`);
     

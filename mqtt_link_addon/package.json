@@ -1,6 +1,6 @@
 {
   "name": "ha-mqtt-unifier",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Virtual unified MQTT broker for Home Assistant with safe upstream bridging",
   "type": "module",
   "main": "dist/index.js",

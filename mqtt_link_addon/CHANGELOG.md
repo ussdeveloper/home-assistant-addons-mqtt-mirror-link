@@ -1,5 +1,14 @@
 ## What's Changed
 
+## Version 2.0.3 (2024)
+### 🐞 Bug Fixes - State Synchronization
+- ✅ **Fixed**: State changes not syncing between Home Assistant instances
+- ✅ **Improved**: Deduplication logic with time-based filtering (500ms minimum)
+- ✅ **Reduced**: Default cache TTL from 30s to 5s for faster state updates
+- ✅ **Added**: Configurable cache TTL (1-30 seconds)
+- ✅ **Enhanced**: Better duplicate detection with origin tracking
+- ✅ **Fixed**: Quick consecutive state changes now properly synchronized
+
 ## Version 2.0.2 (2024)
 ### 🧹 Cleanup
 - ✅ Removed HACS integration files

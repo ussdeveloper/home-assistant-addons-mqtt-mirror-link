@@ -99,5 +99,6 @@ Brak zaplanowanych zmian.
 
 ---
 
-**[Unreleased]**: https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link/compare/v1.0.0...HEAD
-**[1.0.0]**: https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link/releases/tag/v1.0.0
+**[Unreleased]**: https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link/compare/v2.0.3...HEAD
+**[2.0.3]**: https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link/releases/tag/v2.0.3
+**[2.0.2]**: https://github.com/ussdeveloper/home-assistant-addons-mqtt-mirror-link/releases/tag/v2.0.2
