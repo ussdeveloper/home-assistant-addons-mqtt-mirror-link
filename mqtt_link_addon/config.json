@@ -8,6 +8,7 @@
   "startup": "services",
   "boot": "auto",
   "init": false,
+  "host_network": true,
   "options": {
     "broker_a": {
       "host": "localhost",
@@ -43,6 +44,5 @@
     },
     "bidirectional": "bool",
     "log_level": "list(debug|info|warning|error)?"
-  },
-  "image": "ghcr.io/ussdeveloper/mqtt-mirror-link-{arch}"
+  }
 }
