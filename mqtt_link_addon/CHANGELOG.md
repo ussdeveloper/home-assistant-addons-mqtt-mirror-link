@@ -1,5 +1,12 @@
 ## What's changed
 
+## Version 1.0.4 (2024)
+### 🔧 Loop Prevention Fix
+- ✅ Fixed loop detection algorithm to work correctly with mirror link
+- ✅ Changed from direction-based to broker-based loop detection
+- ✅ Now allows legitimate duplicate messages while preventing infinite loops
+- ✅ Improved: A→B→A loop prevention without blocking A→B, A→B sequences
+
 ## Version 1.0.3 (2024)
 ### 🛡️ Loop Prevention
 - ✅ Added message loop prevention mechanism

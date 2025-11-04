@@ -67,24 +67,31 @@ class MQTTBridge:
         else:
             _LOGGER.error(f"Failed to connect to broker B, code: {rc}")
 
-    def _is_duplicate(self, topic, payload, direction):
-        """Check if message is a duplicate (loop prevention)."""
+    def _is_loop(self, topic, payload, source_broker):
+        """Check if message would create a loop (loop prevention)."""
         if not self.args.loop_prevention:
             return False
             
-        # Create message fingerprint
-        msg_hash = hashlib.md5(f"{topic}:{payload}:{direction}".encode()).hexdigest()
+        # Create message fingerprint with source broker
+        # This prevents: A receives msg -> sends to B -> B sends back to A (LOOP)
+        # But allows: A receives msg1 -> sends to B, then A receives msg2 (same content) -> sends to B (OK)
+        msg_hash = hashlib.md5(f"{topic}:{payload}".encode()).hexdigest()
+        cache_key = f"{source_broker}:{msg_hash}"
         current_time = time.time()
         
-        # Check if message was recently forwarded
-        if msg_hash in self.message_cache:
-            last_time = self.message_cache[msg_hash]
+        # Check if this exact message was recently received from the OTHER broker
+        # If yes, it's a loop - we just sent this message there and it's coming back
+        opposite_broker = "B" if source_broker == "A" else "A"
+        opposite_key = f"{opposite_broker}:{msg_hash}"
+        
+        if opposite_key in self.message_cache:
+            last_time = self.message_cache[opposite_key]
             if current_time - last_time < self.args.message_ttl:
-                _LOGGER.debug(f"Duplicate detected: {topic} (direction: {direction})")
+                _LOGGER.debug(f"Loop detected: {topic} from broker {source_broker} (recently sent to it)")
                 return True
         
-        # Add to cache
-        self.message_cache[msg_hash] = current_time
+        # Add to cache - track that we received this message from this broker
+        self.message_cache[cache_key] = current_time
         
         # Limit cache size
         if len(self.message_cache) > self.max_cache_size:
@@ -97,8 +104,8 @@ class MQTTBridge:
         if not self.running:
             return
             
-        # Check for duplicates
-        if self._is_duplicate(msg.topic, msg.payload, "A->B"):
+        # Check for loops - did this message just come from B?
+        if self._is_loop(msg.topic, msg.payload, "A"):
             return
             
         try:
@@ -112,8 +119,8 @@ class MQTTBridge:
         if not self.running or not self.args.bidirectional:
             return
             
-        # Check for duplicates
-        if self._is_duplicate(msg.topic, msg.payload, "B->A"):
+        # Check for loops - did this message just come from A?
+        if self._is_loop(msg.topic, msg.payload, "B"):
             return
             
         try:
